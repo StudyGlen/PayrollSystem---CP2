@@ -3,6 +3,6 @@ S1101 - Group 20
 - Ainy Julienne Manuel
 - Raymond Ballaran
 - Glen Romero
-- Nikko Pangilinan
+- Nikko Pangilinann
 - Diana Cathlene De Leon
 
