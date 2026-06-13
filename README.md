@@ -6,7 +6,19 @@ S1101 - Group 20
 - Nikko Pangilinan
 - Diana Cathlene De Leon
 
-_____________________________________________________________________________________________________________________________________________________________________________
+_________________________________________________________________________________________________________________________
+
+Milestone 2 Update
+
+- Added Add Employee feature
+- Added Update Employee feature
+- Added Delete Employee feature
+- Added Employee Search
+- Added Input Validation
+- Added Error Handling
+- Added EmployeeManager class
+- Improved GUI structure
+____________________________________________________
 CHANGE REQUESTS LINK
 https://docs.google.com/spreadsheets/d/1tZTqc68DXY_cBcVGj-VQMnkbGGPXVrsCTr-xuo8ag1M/edit?usp=sharing
 
