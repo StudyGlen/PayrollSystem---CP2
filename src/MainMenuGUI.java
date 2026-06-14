@@ -144,9 +144,10 @@ public class MainMenuGUI extends JFrame {
     }
     
 // NAME VALIDATION
-        if(!name.matches("[a-zA-Z ]+")) {
+            
+if(!name.matches("[a-zA-Z ]+")) {
 
-        JOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
             null,
             "Employee Name must contain letters and spaces only.",
             "Invalid Name",
@@ -155,26 +156,28 @@ public class MainMenuGUI extends JFrame {
         );
 
     return;
-    
+            
 }
         
 // EMPLOYEE ID VALIDATION
+            
 if(!id.matches("\\d+")) {
 
-    JOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
             null,
             "Employee ID must contain numbers only.",
             "Invalid Employee ID",
             JOptionPane.ERROR_MESSAGE
-    );
+        );
 
     return;
 }
 
 // NAME VALIDATION
+            
 if(!name.matches("[a-zA-Z ]+")) {
 
-    JOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
             null,
             "Employee Name must contain letters and spaces only.",
             "Invalid Name",
@@ -185,9 +188,10 @@ if(!name.matches("[a-zA-Z ]+")) {
 }
 
 // DEPARTMENT VALIDATION
+            
 if(!dept.matches("[a-zA-Z ]+")) {
 
-    JOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
             null,
             "Department must contain letters and spaces only.",
             "Invalid Department",
@@ -201,12 +205,12 @@ if(!dept.matches("[a-zA-Z ]+")) {
 
 try {
 
-    double salaryAmount =
+double salaryAmount =
             Double.parseDouble(salary);
 
-    if(salaryAmount <= 0) {
+if(salaryAmount <= 0) {
 
-        JOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(
                 null,
                 "Salary must be greater than zero.",
                 "Invalid Salary",
