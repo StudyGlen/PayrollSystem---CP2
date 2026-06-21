@@ -232,19 +232,23 @@ if(salaryAmount <= 0) {
     return;
 }
 
+// --- QA PATCH: Duplicate ID Interceptor ---
+boolean isAdded = EmployeeManager.addEmployee(id, name, dept, salary);
 
-
-EmployeeManager.addEmployee(
-        id,
-        name,
-        dept,
-        salary
-);
-
-JOptionPane.showMessageDialog(
-        null,
-        "Employee Added Successfully!"
-);
+if (isAdded) {
+    JOptionPane.showMessageDialog(
+            null,
+            "Employee Added Successfully!"
+    );
+} else {
+    JOptionPane.showMessageDialog(
+            null,
+            "Error: Employee ID " + id + " already exists in the system.",
+            "Duplicate ID Detected",
+            JOptionPane.ERROR_MESSAGE
+    );
+}
+// ------------------------------------------
 
 }
      
@@ -349,15 +353,19 @@ if(choice == 0) {
             
             if(updateOption == JOptionPane.OK_OPTION) {
 
-            employee[1] = txtName.getText().trim();
-            employee[2] = txtDept.getText().trim();
-            employee[3] = txtSalary.getText().trim();
+                employee[1] = txtName.getText().trim();
+                employee[2] = txtDept.getText().trim();
+                employee[3] = txtSalary.getText().trim();
 
-            JOptionPane.showMessageDialog(
-            null,
-            "Employee Updated Successfully!"
-    );
-}
+                // --- QA PATCH: Trigger hard-drive overwrite ---
+                EmployeeManager.saveAllToCSV();
+                // ----------------------------------------------
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Employee Updated Successfully!"
+                );
+            }
         
 }
       
