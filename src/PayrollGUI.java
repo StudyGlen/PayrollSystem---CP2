@@ -4,8 +4,9 @@ import java.awt.event.*;
 
 public class PayrollGUI extends JFrame {
 
-    JLabel lblName, lblSalary;
-    JTextField txtName, txtSalary;
+    JLabel lblName, lblDaysWorked;
+    JComboBox<String> cmbEmployees;
+    JTextField txtDaysWorked;
 
     JButton btnCompute, btnClear, btnBack;
 
@@ -40,30 +41,38 @@ public class PayrollGUI extends JFrame {
         panel.add(lblTitle);
 
         // LABELS
-        lblName = new JLabel("Employee Name:");
+        lblName = new JLabel("Select Employee:");
 
         lblName.setBounds(40, 70, 120, 25);
 
         panel.add(lblName);
 
-        lblSalary = new JLabel("Monthly Salary:");
+        lblDaysWorked = new JLabel("Days Worked:");
 
-        lblSalary.setBounds(40, 110, 120, 25);
+        lblDaysWorked.setBounds(40, 110, 120, 25);
 
-        panel.add(lblSalary);
+        panel.add(lblDaysWorked);
 
-        // TEXTFIELDS
-        txtName = new JTextField();
+        // DROPDOWN MENU (Pulls live data from EmployeeManager CSV storage)
+        cmbEmployees = new JComboBox<>();
+        cmbEmployees.setBounds(180, 70, 250, 25);
+        
+        // Auto-load active employees into dropdown
+        if (EmployeeManager.employees != null) {
+            for (String[] emp : EmployeeManager.employees) {
+                if (emp.length >= 4) {
+                    cmbEmployees.addItem(emp[0] + " - " + emp[1]);
+                }
+            }
+        }
+        panel.add(cmbEmployees);
 
-        txtName.setBounds(180, 70, 250, 25);
+        // TEXTFIELD FOR DAYS WORKED
+        txtDaysWorked = new JTextField();
 
-        panel.add(txtName);
+        txtDaysWorked.setBounds(180, 110, 250, 25);
 
-        txtSalary = new JTextField();
-
-        txtSalary.setBounds(180, 110, 250, 25);
-
-        panel.add(txtSalary);
+        panel.add(txtDaysWorked);
 
         // COMPUTE BUTTON
         btnCompute = new JButton("Compute Payroll");
@@ -104,7 +113,7 @@ public class PayrollGUI extends JFrame {
 
         panel.add(btnBack);
 
-        // TEXT AREA
+        // TEXT AREA (Glen's Pristine Payslip Container)
         txtResult = new JTextArea();
 
         txtResult.setEditable(false);
@@ -117,7 +126,7 @@ public class PayrollGUI extends JFrame {
 
         panel.add(scrollPane);
 
-        // COMPUTE BUTTON ACTION
+        // COMPUTE BUTTON ACTION (Rubric Feature 3 Integration Engine)
         btnCompute.addActionListener(new ActionListener() {
 
             @Override
@@ -125,12 +134,12 @@ public class PayrollGUI extends JFrame {
 
                 try {
 
-                    if(txtName.getText().isEmpty()
-                            || txtSalary.getText().isEmpty()) {
+                    if(cmbEmployees.getSelectedItem() == null 
+                            || txtDaysWorked.getText().trim().isEmpty()) {
 
                         JOptionPane.showMessageDialog(
                                 null,
-                                "Please complete all fields.",
+                                "Please select an employee and input days worked.",
                                 "ERROR",
                                 JOptionPane.ERROR_MESSAGE
                         );
@@ -138,87 +147,85 @@ public class PayrollGUI extends JFrame {
                         return;
                     }
 
-String name = txtName.getText().trim();
-String salaryText = txtSalary.getText().trim();
+                    // Extract ID and Name from dropdown selection (e.g. "1004 - Dianna De Leon")
+                    String selectedItem = cmbEmployees.getSelectedItem().toString();
+                    String[] parts = selectedItem.split(" - ");
+                    String empID = parts[0];
+                    String empName = parts.length > 1 ? parts[1] : selectedItem;
 
-// NAME VALIDATION
-if(!name.matches("[a-zA-Z ]+")) {
+                    // Locate stored monthly base salary from CSV array
+                    double storedBaseSalary = 0;
+                    for (String[] emp : EmployeeManager.employees) {
+                        if (emp.length >= 4 && emp[0].equals(empID)) {
+                            storedBaseSalary = Double.parseDouble(emp[3]);
+                            break;
+                        }
+                    }
 
-    JOptionPane.showMessageDialog(
-            null,
-            "Employee Name must contain letters and spaces only.",
-            "INVALID NAME",
-            JOptionPane.ERROR_MESSAGE
-    );
+                    if (storedBaseSalary <= 0) {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Error: Employee base salary record is invalid or zero.",
+                                "DATA ERROR",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        return;
+                    }
 
-    return;
-}
+                    String daysText = txtDaysWorked.getText().trim();
+                    double daysWorked = Double.parseDouble(daysText);
 
-double salary =
-        Double.parseDouble(salaryText);
+                    // DAYS WORKED VALIDATION
+                    if(daysWorked <= 0 || daysWorked > 31) {
 
-// SALARY VALIDATION
-if(salary <= 0) {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Active days worked must be between 0.5 and 31.",
+                                "INVALID DAYS WORKED",
+                                JOptionPane.ERROR_MESSAGE
+                        );
 
-    JOptionPane.showMessageDialog(
-            null,
-            "Salary must be greater than zero.",
-            "INVALID SALARY",
-            JOptionPane.ERROR_MESSAGE
-    );
+                        return;
+                    }
 
-    return;
-}
-            double hourlyRate = salary / 168;
+                    // DYNAMIC PAYROLL DERIVATIONS (Assuming 22 standard working days per month)
+                    double dailyRate = storedBaseSalary / 22.0;
+                    double hourlyRate = dailyRate / 8.0;
+                    double grossPay = dailyRate * daysWorked;
 
-            PayrollCalculator calculator =
-                    new PayrollCalculator();
+                    PayrollCalculator calculator = new PayrollCalculator();
 
-            double sss =
-                    calculator.compSSS(salary);
+                    // Statutory deductions calculated against earned gross pay
+                    double sss = calculator.compSSS(grossPay);
+                    double philhealth = calculator.compPhil(grossPay);
+                    double pagibig = 200.0; // Preserving Glen's fixed Pag-IBIG contribution
+                    double tax = calculator.compTax(grossPay);
 
-            double philhealth =
-                    calculator.compPhil(salary);
-            
-            double pagibig = 200;
+                    double deductions = sss + philhealth + pagibig + tax;
+                    double netPay = grossPay - deductions;
 
-            double tax =
-                    calculator.compTax(salary);
-
-            double deductions =
-                            sss + philhealth + pagibig + tax;
-
-            double netPay = salary - deductions;
-
+                    // RENDER GLEN'S EXACT FORMATTED PAYSLIP
                     txtResult.setText(
                             "========== PAYROLL SUMMARY ==========\n\n"
-                            + "Employee Name: " + name + "\n"
-                            + "Monthly Salary: ₱"
-                            + String.format("%.2f", salary) + "\n"
-                            + "Hourly Rate: ₱"
-                            + String.format("%.2f", hourlyRate)
-                            + "\n\n"
+                            + "Employee Name: " + empName + "\n"
+                            + "Base Monthly:  ₱" + String.format("%.2f", storedBaseSalary) + "\n"
+                            + "Daily Rate:    ₱" + String.format("%.2f", dailyRate) + "\n"
+                            + "Days Worked:   " + String.format("%.1f", daysWorked) + "\n"
+                            + "GROSS PAY:     ₱" + String.format("%.2f", grossPay) + "\n\n"
 
                             + "------------- DEDUCTIONS -------------\n"
 
-                            + "SSS: ₱"
-                            + String.format("%.2f", sss) + "\n"
+                            + "SSS: ₱" + String.format("%.2f", sss) + "\n"
 
-                            + "PhilHealth: ₱"
-                            + String.format("%.2f", philhealth) + "\n"
+                            + "PhilHealth: ₱" + String.format("%.2f", philhealth) + "\n"
 
-                            + "Pag-IBIG: ₱"
-                            + String.format("%.2f", pagibig) + "\n"
+                            + "Pag-IBIG: ₱" + String.format("%.2f", pagibig) + "\n"
 
-                            + "Tax: ₱"
-                            + String.format("%.2f", tax) + "\n\n"
+                            + "Tax: ₱" + String.format("%.2f", tax) + "\n\n"
 
-                            + "Total Deductions: ₱"
-                            + String.format("%.2f", deductions)
-                            + "\n\n"
+                            + "Total Deductions: ₱" + String.format("%.2f", deductions) + "\n\n"
 
-                            + "NET PAY: ₱"
-                            + String.format("%.2f", netPay)
+                            + "NET PAY: ₱" + String.format("%.2f", netPay)
                     );
 
                     JOptionPane.showMessageDialog(
@@ -230,8 +237,8 @@ if(salary <= 0) {
 
                     JOptionPane.showMessageDialog(
                             null,
-                            "Please enter valid salary input.",
-                            "ERROR",
+                            "Please enter a valid numerical value for days worked (e.g. 14.5).",
+                            "INPUT ERROR",
                             JOptionPane.ERROR_MESSAGE
                     );
                 }
@@ -244,9 +251,11 @@ if(salary <= 0) {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                txtName.setText("");
+                if (cmbEmployees.getItemCount() > 0) {
+                    cmbEmployees.setSelectedIndex(0);
+                }
 
-                txtSalary.setText("");
+                txtDaysWorked.setText("");
 
                 txtResult.setText("");
             }
