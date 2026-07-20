@@ -1,6 +1,6 @@
 # MotorPH Payroll Management System
 
-**Course:** Computer Programming 2 (Milestone 2 Submission)  
+**Course:** Computer Programming 2 (Terminal Assessment Submission)  
 **Section:** S1101 — Group 20
 
 ---
